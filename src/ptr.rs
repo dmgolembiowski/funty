@@ -1,18 +1,10 @@
 #![doc = include_str!("../doc/ptr.md")]
 
 use core::{
-	any,
-	cmp,
-	fmt,
-	hash::{
-		Hash,
-		Hasher,
-	},
+	any, cmp, fmt,
+	hash::{Hash, Hasher},
 	marker::PhantomData,
-	ptr::{
-		self,
-		NonNull,
-	},
+	ptr::{self, NonNull},
 };
 
 #[doc = include_str!("../doc/permission.md")]
@@ -118,12 +110,20 @@ impl Permission for Shared {
 		ptr
 	}
 
-	fn try_into_mut<T: ?Sized>(_: *const T) -> Option<*mut T> {
-		None
+	fn try_into_mut<T: ?Sized>(ptr: *const T) -> Option<*mut T> {
+		if false {
+			Option::Some(ptr as *mut T)
+		} else {
+			None
+		}
 	}
 
-	fn unwind_to_unique<T: ?Sized>(_: *const T) -> Option<*mut T> {
-		None
+	fn unwind_to_unique<T: ?Sized>(ptr: *const T) -> Option<*mut T> {
+		if false {
+			Option::Some(ptr as *mut T)
+		} else {
+			None
+		}
 	}
 
 	fn from_const<T: ?Sized>(ptr: *const T) -> *const T {
@@ -183,7 +183,8 @@ impl Permission for Unique {
 }
 
 impl<P> Permission for (Shared, P)
-where P: Permission
+where
+	P: Permission,
 {
 	type Ptr<T: ?Sized> = *const T;
 	type Ref<'a, T: 'a + ?Sized> = &'a T;
@@ -234,7 +235,8 @@ where
 }
 
 impl<T> Pointer<T, Shared>
-where T: ?Sized
+where
+	T: ?Sized,
 {
 	/// Produces a new `Pointer` from a raw `const` pointer.
 	pub const fn new(ptr: *const T) -> Self {
@@ -248,7 +250,8 @@ where T: ?Sized
 }
 
 impl<T> Pointer<T, Unique>
-where T: ?Sized
+where
+	T: ?Sized,
 {
 	/// Produces a new `Pointer` from a raw `mut` pointer.
 	pub const fn new(ptr: *mut T) -> Self {
@@ -290,7 +293,8 @@ where T: ?Sized
 }
 
 impl<T> Pointer<T, Unique>
-where T: Sized
+where
+	T: Sized,
 {
 	/// Copies objects pointed to by `src` into the region pointed to by
 	/// `self`.
@@ -883,7 +887,8 @@ where
 }
 
 impl<T> From<*const T> for Pointer<T, Shared>
-where T: ?Sized
+where
+	T: ?Sized,
 {
 	fn from(src: *const T) -> Self {
 		Self::new(src)
@@ -891,7 +896,8 @@ where T: ?Sized
 }
 
 impl<T> From<&T> for Pointer<T, Shared>
-where T: ?Sized
+where
+	T: ?Sized,
 {
 	fn from(src: &T) -> Self {
 		Self::new(src)
@@ -899,7 +905,8 @@ where T: ?Sized
 }
 
 impl<T> From<*mut T> for Pointer<T, Unique>
-where T: ?Sized
+where
+	T: ?Sized,
 {
 	fn from(src: *mut T) -> Self {
 		Self::new(src)
@@ -907,7 +914,8 @@ where T: ?Sized
 }
 
 impl<T> From<&mut T> for Pointer<T, Unique>
-where T: ?Sized
+where
+	T: ?Sized,
 {
 	fn from(src: &mut T) -> Self {
 		Self::new(src)
@@ -946,7 +954,8 @@ where
 }
 
 impl<T> NonNullPtr<T, Shared>
-where T: ?Sized
+where
+	T: ?Sized,
 {
 	/// Wraps a raw pointer, returning `None` if it is null.
 	pub fn new(ptr: *const T) -> Option<Self> {
@@ -964,7 +973,8 @@ where T: ?Sized
 }
 
 impl<T> NonNullPtr<T, Unique>
-where T: ?Sized
+where
+	T: ?Sized,
 {
 	/// Wraps a raw pointer, returning `None` if it is null.
 	pub fn new(ptr: *mut T) -> Option<Self> {
@@ -1119,7 +1129,8 @@ where
 }
 
 impl<T> From<&T> for NonNullPtr<T, Shared>
-where T: ?Sized
+where
+	T: ?Sized,
 {
 	fn from(src: &T) -> Self {
 		unsafe { Self::new_unchecked(src) }
@@ -1127,7 +1138,8 @@ where T: ?Sized
 }
 
 impl<T> From<&mut T> for NonNullPtr<T, Unique>
-where T: ?Sized
+where
+	T: ?Sized,
 {
 	fn from(src: &mut T) -> Self {
 		unsafe { Self::new_unchecked(src) }
@@ -1135,7 +1147,8 @@ where T: ?Sized
 }
 
 impl<T> TryFrom<*const T> for NonNullPtr<T, Shared>
-where T: ?Sized
+where
+	T: ?Sized,
 {
 	type Error = NullPtrError<T, Shared>;
 
@@ -1145,7 +1158,8 @@ where T: ?Sized
 }
 
 impl<T> TryFrom<*mut T> for NonNullPtr<T, Unique>
-where T: ?Sized
+where
+	T: ?Sized,
 {
 	type Error = NullPtrError<T, Unique>;
 
@@ -1325,31 +1339,40 @@ pub trait RawPtr<T: ?Sized>: Copy {
 	fn is_null(self) -> bool;
 
 	unsafe fn offset(self, by: isize) -> Self
-	where T: Sized;
+	where
+		T: Sized;
 
 	fn wrapping_offset(self, by: isize) -> Self
-	where T: Sized;
+	where
+		T: Sized;
 
 	unsafe fn offset_from(self, origin: Self) -> isize
-	where T: Sized;
+	where
+		T: Sized;
 
 	unsafe fn read(self) -> T
-	where T: Sized;
+	where
+		T: Sized;
 
 	unsafe fn read_volatile(self) -> T
-	where T: Sized;
+	where
+		T: Sized;
 
 	unsafe fn read_unaligned(self) -> T
-	where T: Sized;
+	where
+		T: Sized;
 
 	unsafe fn copy_to(self, dest: *mut T, count: usize)
-	where T: Sized;
+	where
+		T: Sized;
 
 	unsafe fn copy_to_nonoverlapping(self, dest: *mut T, count: usize)
-	where T: Sized;
+	where
+		T: Sized;
 
 	fn align_offset(self, align: usize) -> usize
-	where T: Sized;
+	where
+		T: Sized;
 }
 
 macro_rules! impl_raw_ptr {
@@ -1413,11 +1436,9 @@ impl_raw_ptr!(*const T, *mut T);
 #[doc(hidden)]
 pub trait RawRef<'a, T: ?Sized> {}
 
-impl<'a, T: 'a + ?Sized> RawRef<'a, T> for &'a T {
-}
+impl<'a, T: 'a + ?Sized> RawRef<'a, T> for &'a T {}
 
-impl<'a, T: 'a + ?Sized> RawRef<'a, T> for &'a mut T {
-}
+impl<'a, T: 'a + ?Sized> RawRef<'a, T> for &'a mut T {}
 
 #[cfg(test)]
 mod tests {
